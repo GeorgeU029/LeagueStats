@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riot Games API - Summoner Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #summoner-info {
+            margin-top: 20px;
+        }
+        #match-info {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Riot Games API - Summoner Info</h1>
+    <input type="text" id="gameName" placeholder="Enter Game Name" />
+    <input type="text" id="tagLine" placeholder="Enter Tag Line" />
+    <button id="fetchAccount">Fetch Account</button>
+
+    <!-- Display summoner info -->
+    <div id="summoner-info"></div>
+
+    <!-- Display match info -->
+     
+    <div id="match-info">
+        <h2>Last Match Info</h2>
+        <p id="character">Character Used: </p>
+        <p id="outcome">Match Outcome: </p>
+        <p id="items">Items Used: </p>
+        <p id="kills">Kills:</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='frontEndAPI.js') }}"></script>
+</body>
+</html>
+
+
+
