@@ -4,44 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riot Games API - Summoner Info</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
             padding: 20px;
+            margin: 0;
         }
-        #summoner-info {
-            margin-top: 20px;
+        h1 {
+            text-align: center;
+            color: #ffcc00;
         }
-        #match-info {
-            margin-top: 20px;
-            border: 1px solid #ccc;
+        input[type="text"] {
+            width: calc(50% - 10px);
             padding: 10px;
-            background-color: #f9f9f9;
+            margin: 10px 5px;
+            border: 2px solid #ffcc00;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+            transition: border 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #ffcc00;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            color: #1a1a1a;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #e6b800;
+        }
+        #summoner-info, #match-info {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #2a2a2a;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        .match {
+            border-bottom: 1px solid #444;
+            padding: 10px 0;
+        }
+        .match:last-child {
+            border-bottom: none;
+        }
+        @media (max-width: 600px) {
+            input[type="text"] {
+                width: 100%;
+            }
         }
     </style>
+        <style>
+            /* Add these styles to handle images properly */
+            .champion-image, .item-image {
+                width: 50px;
+                height: 50px;
+                border-radius: 5px;
+                margin-right: 10px;
+                vertical-align: middle;
+            }
+            .match {
+                margin-top: 15px;
+            }
+            .item-images {
+                display: flex;
+                gap: 5px;
+            }
+        </style>
 </head>
 <body>
     <h1>Riot Games API - Summoner Info</h1>
-    <input type="text" id="gameName" placeholder="Enter Game Name" />
-    <input type="text" id="tagLine" placeholder="Enter Tag Line" />
-    <button id="fetchAccount">Fetch Account</button>
+    <div style="text-align: center;">
+        <input type="text" id="gameName" placeholder="Enter Game Name" />
+        <input type="text" id="tagLine" placeholder="Enter Tag Line" />
+        <button id="fetchAccount">Fetch Account</button>
+    </div>
 
     <!-- Display summoner info -->
     <div id="summoner-info"></div>
 
     <!-- Display match info -->
-     
     <div id="match-info">
-        <h2>Last Match Info</h2>
-        <p id="character">Character Used: </p>
-        <p id="outcome">Match Outcome: </p>
-        <p id="items">Items Used: </p>
-        <p id="kills">Kills:</p>
+        <h2>Match History</h2>
     </div>
 
     <script src="{{ url_for('static', filename='frontEndAPI.js') }}"></script>
 </body>
 </html>
-
-
-
