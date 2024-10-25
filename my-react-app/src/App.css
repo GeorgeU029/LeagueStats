@@ -1,0 +1,112 @@
+:root {
+  --background-dark: rgb(40, 44, 52);  /* Set the whole background color */
+  --background-light: #2e2e2e;
+  --win-color: #4a90e2;  /* Nice shade of blue for the winning team */
+  --loss-color: #e63946;  /* Bright red for the losing team */
+  --highlight-yellow: #f9c74f;
+  --text-light: #f0f0f0;
+  --text-dark: #0f3460;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+h1, h2, h4, h5 {
+  color: var(--highlight-yellow);
+}
+
+button {
+  background-color: var(--highlight-yellow);
+  color: var(--text-dark);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #f7b733;
+}
+
+input[type="text"] {
+  padding: 10px;
+  margin: 10px 5px;
+  border: 2px solid var(--highlight-yellow);
+  border-radius: 8px;
+  background-color: #333;
+  color: #fff;
+  transition: border 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #f7b733;
+  outline: none;
+}
+
+footer {
+  margin-top: 50px;
+  padding: 20px;
+  background-color: var(--background-dark);
+  color: #ffffff;
+  font-size: 0.9em;
+}
+
+.card {
+  background-color: var(--background-light);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.7);
+}
+
+
+
+.item-images {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.participant-champion-image {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.match-outcome {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.match-info-left {
+  flex: 2;
+}
+
+.match-participants-right {
+  flex: 1;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.team {
+  width: 100%;
+  margin-bottom: 20px;
+}
