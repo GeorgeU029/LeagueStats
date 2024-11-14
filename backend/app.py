@@ -1,8 +1,10 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 import requests
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 
 # Load environment variables
 load_dotenv(dotenv_path='key.env')
@@ -16,27 +18,10 @@ API_KEY = os.getenv('RIOT_API_KEY')
 PORT = int(os.getenv('PORT', 3000))
 
 custom_headers = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0",
     "X-Riot-Token": API_KEY
 }
 
-# Summoner Spell ID to Name Mapping
-SUMMONER_SPELLS = {
-    1: "SummonerBoost",       # Cleanse
-    3: "SummonerExhaust",     # Exhaust
-    4: "SummonerFlash",       # Flash
-    6: "SummonerHaste",       # Ghost
-    7: "SummonerHeal",        # Heal
-    11: "SummonerSmite",      # Smite
-    12: "SummonerTeleport",   # Teleport
-    13: "SummonerMana",       # Clarity
-    14: "SummonerDot",        # Ignite
-    21: "SummonerBarrier",    # Barrier
-    32: "SummonerMark",       # Mark
-    39: "SummonerSnowURFSnowball_Mark"  # Ultra Rapid Fire Snowball
-}
-
-# Get the latest version of the game data from Riot's data dragon
 @app.route('/api/version', methods=['GET'])
 def get_latest_version():
     url = "https://ddragon.leagueoflegends.com/api/versions.json"
@@ -44,16 +29,14 @@ def get_latest_version():
         response = requests.get(url)
         response.raise_for_status()
         versions = response.json()
-        return jsonify({"version": versions[0]})  # Return the latest version
-    except requests.exceptions.HTTPError as err:
+        return jsonify({"version": versions[0]})
+    except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
 
-# Serve the index.html file
 @app.route('/')
 def index():
     return "Welcome to the Riot API Server!"
 
-# Fetch account data by Game Name and Tag Line
 @app.route('/api/account/<string:gameName>/<string:tagLine>', methods=['GET'])
 def get_account_data(gameName, tagLine):
     base_url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}"
@@ -61,10 +44,9 @@ def get_account_data(gameName, tagLine):
         response = requests.get(base_url, headers=custom_headers)
         response.raise_for_status()
         return jsonify(response.json())
-    except requests.exceptions.HTTPError as err:
+    except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
 
-# Fetch summoner data by PUUID and include summoner's level and rank
 @app.route('/api/summoner/by-puuid/<string:puuid>', methods=['GET'])
 def get_summoner_data(puuid):
     base_url = f"https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
@@ -73,22 +55,19 @@ def get_summoner_data(puuid):
         response.raise_for_status()
         data = response.json()
 
-        # Fetch rank information
         rank_url = f"https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/{data['id']}"
         rank_response = requests.get(rank_url, headers=custom_headers)
         rank_response.raise_for_status()
         rank_data = rank_response.json()
 
-        # Combine summoner info and rank info
         return jsonify({
             "summonerLevel": data["summonerLevel"],
             "profileIconId": data["profileIconId"],
-            "rank": rank_data[0] if rank_data else None  # Get rank info, if available
+            "rank": rank_data[0] if rank_data else None
         })
-    except requests.exceptions.HTTPError as err:
+    except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
 
-# Fetch match data by PUUID
 @app.route('/api/matches/by-puuid/<string:puuid>', methods=['GET'])
 def get_match_history(puuid):
     base_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
@@ -96,57 +75,189 @@ def get_match_history(puuid):
         response = requests.get(base_url, headers=custom_headers)
         response.raise_for_status()
         return jsonify(response.json())
-    except requests.exceptions.HTTPError as err:
+    except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
+def fetch_match_data(match_id, puuid):
+    match_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/{match_id}"
+    retries = 3
+    delay = 2
+    for i in range(retries):
+        try:
+            response = requests.get(match_url, headers=custom_headers)
+            response.raise_for_status()
+            match_data = response.json()
+            participant = next(
+                (p for p in match_data['info']['participants'] if p['puuid'] == puuid), None
+            )
 
-# Fetch individual match details
-@app.route('/api/matches/<string:matchId>', methods=['GET'])
-def get_match_data(matchId):
-    puuid = request.args.get('puuid')
-    base_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/{matchId}"
+            if participant:
+                # Retrieve summoner spells using summoner1Id and summoner2Id
+                summoner_spells = [
+                    participant.get('summoner1Id'),  # Summoner spell 1 ID
+                    participant.get('summoner2Id')   # Summoner spell 2 ID
+                ]
+                print("Summoner Spells:", summoner_spells)  # Log summoner spells for debugging
+
+                # Extract rune data for primary and secondary rune styles
+                runes_data = participant.get('perks', {}).get('styles', [])
+                print("Runes Data:", runes_data)  # Debugging the runes data
+
+                # Access the style ID directly for primary and sub-style
+                primary_rune_style = runes_data[0]['selections'][0]['perk'] if len(runes_data) > 0 and 'selections' in runes_data[0] else None
+                sub_rune_style = runes_data[1]['style'] if len(runes_data) > 1 else None
+
+                # Print extracted primary and sub styles for verification
+                print("Primary Rune Style:", primary_rune_style)
+                print("Sub Rune Style:", sub_rune_style)
+
+                # Create a `runes` dictionary with primary and sub styles based on the style IDs
+                runes = {
+                    "primaryStyle": primary_rune_style,
+                    "subStyle": sub_rune_style
+                }
+
+                participants = [
+                    {
+                        "championName": p['championName'],
+                        "summonerName": p['summonerName']
+                    } for p in match_data['info']['participants']
+                ]
+
+                return {
+                    "matchId": match_id,
+                    "champion": participant['championName'],
+                    "win": participant['win'],
+                    "kills": participant['kills'],
+                    "deaths": participant['deaths'],
+                    "assists": participant['assists'],
+                    "items": [
+                        participant['item0'], participant['item1'], participant['item2'],
+                        participant['item3'], participant['item4'], participant['item5'], participant['item6']
+                    ],
+                    "summonerSpells": summoner_spells,
+                    "runes": runes,
+                    "gameMode": match_data['info'].get('gameMode', 'Unknown'),
+                    "participants": participants,
+                    "gameCreation": match_data['info']['gameCreation'],
+                    "totalMinionsKilled": participant.get('totalMinionsKilled', 0),
+                    "goldEarned": participant.get('goldEarned', 0),
+                    "gameDuration": match_data['info'].get('gameDuration', 1)
+                }
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429 and i < retries - 1:
+                time.sleep(delay)
+                delay *= 2
+            else:
+                return None
+
+
+
+            
+@app.route('/api/matches/winrate/<string:puuid>', methods=['GET'])
+def get_match_history_with_win_rate(puuid):
+    limit = int(request.args.get('limit', 10))
+    offset = int(request.args.get('offset', 0))
+
+    base_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start={offset}&count={limit}"
     try:
         response = requests.get(base_url, headers=custom_headers)
         response.raise_for_status()
-        match_data = response.json()
+        match_ids = response.json()
 
-        # Find participant info for this summoner
-        participant = next(p for p in match_data['info']['participants'] if p['puuid'] == puuid)
+        wins = 0
+        total_matches = len(match_ids)
+        match_details = []
 
-        # Calculate game duration in minutes and seconds
-        game_duration_seconds = match_data['info']['gameDuration']
-        game_duration = f"{game_duration_seconds // 60}m {game_duration_seconds % 60}s"
+        with ThreadPoolExecutor() as executor:
+            future_to_match = {executor.submit(fetch_match_data, match_id, puuid): match_id for match_id in match_ids}
+            for future in as_completed(future_to_match):
+                match_data = future.result()
+                if match_data:
+                    match_details.append(match_data)
+                    if match_data["win"]:
+                        wins += 1
 
-        # Map summoner spells from IDs to spell names
-        summoner_spells = [
-            SUMMONER_SPELLS.get(participant['summoner1Id'], 'Unknown'),
-            SUMMONER_SPELLS.get(participant['summoner2Id'], 'Unknown')
-        ]
+        # Sort match details by 'gameCreation' timestamp in descending order
+        match_details.sort(key=lambda x: x["gameCreation"], reverse=True)
 
-        # Collect participant data (champion name and summoner name)
-        participants = [
-            {
-                "championName": p['championName'],
-                "summonerName": p['summonerName']
-            } for p in match_data['info']['participants']
-        ]
+        win_rate = (wins / total_matches) * 100 if total_matches > 0 else 0
 
         return jsonify({
-            "matchId": matchId,
-            "champion": participant['championName'],
-            "win": participant['win'],
-            "items": [
-                participant['item0'], participant['item1'], participant['item2'],
-                participant['item3'], participant['item4'], participant['item5'], participant['item6']
-            ],
-            "kills": participant['kills'],
-            "deaths": participant['deaths'],
-            "assists": participant['assists'],
-            "summonerSpells": summoner_spells,
-            "runes": participant['perks']['styles'],
-            "gameDuration": game_duration,
-            "participants": participants,
+            "totalMatches": total_matches,
+            "wins": wins,
+            "losses": total_matches - wins,
+            "winRate": round(win_rate, 2),
+            "matchDetails": match_details
         })
-    except requests.exceptions.HTTPError as err:
+    except requests.exceptions.RequestException as err:
+        return jsonify({"error": str(err)}), 500
+
+@app.route('/api/champion-mastery/<string:puuid>', methods=['GET'])
+def get_champion_mastery(puuid):
+    base_url = f"https://na1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}/top"
+    try:
+        response = requests.get(base_url, headers=custom_headers)
+        response.raise_for_status()
+        mastery_data = response.json()
+
+        # Limit to top 5 champions
+        top_mastery = mastery_data[:5]
+
+        return jsonify({"topMastery": top_mastery})
+    except requests.exceptions.RequestException as err:
+        return jsonify({"error": str(err)}), 500
+
+@app.route('/api/champion-performance/<string:puuid>', methods=['GET'])
+def get_champion_performance(puuid):
+    limit = int(request.args.get('limit', 20))
+    base_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count={limit}"
+
+    try:
+        response = requests.get(base_url, headers=custom_headers)
+        response.raise_for_status()
+        match_ids = response.json()
+
+        champion_stats = {}
+
+        for match_id in match_ids:
+            match_data = fetch_match_data(match_id, puuid)
+            if match_data:
+                champion_name = match_data['champion']
+                if champion_name not in champion_stats:
+                    champion_stats[champion_name] = {
+                        'games': 0,
+                        'wins': 0,
+                        'kills': 0,
+                        'deaths': 0,
+                        'assists': 0,
+                        'cs': 0,
+                        'gold': 0
+                    }
+
+                stats = champion_stats[champion_name]
+                stats['games'] += 1
+                stats['wins'] += 1 if match_data['win'] else 0
+                stats['kills'] += match_data['kills']
+                stats['deaths'] += match_data['deaths']
+                stats['assists'] += match_data['assists']
+                stats['cs'] += match_data.get('totalMinionsKilled', 0)
+                stats['gold'] += match_data.get('goldEarned', 0)
+
+        champion_performance = [
+            {
+                'champion': champion,
+                'games': stats['games'],
+                'win_rate': round((stats['wins'] / stats['games']) * 100, 2) if stats['games'] > 0 else 0,
+                'average_kda': f"{stats['kills'] / stats['games']:.1f}/{stats['deaths'] / stats['games']:.1f}/{stats['assists'] / stats['games']:.1f}" if stats['games'] > 0 else "N/A",
+                'average_cs_per_min': round((stats['cs'] / stats['games']) / (match_data['gameDuration'] / 60), 2) if match_data.get('gameDuration') else 0,
+                'average_gold': round(stats['gold'] / stats['games'], 2) if stats['games'] > 0 else 0
+            }
+            for champion, stats in champion_stats.items()
+        ]
+
+        return jsonify({"championPerformance": champion_performance})
+    except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
 
 if __name__ == '__main__':
