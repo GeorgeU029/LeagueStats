@@ -50,3 +50,37 @@ export const getMatchData = async (matchId, puuid) => {
     return { error: 'Failed to fetch match data' };
   }
 };
+
+// Function to get match history with win rate
+export const getMatchHistoryWithWinRate = async (puuid, limit = 10, offset = 0) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/matches/winrate/${puuid}`, {
+      params: { limit, offset },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching match history with win rate:', error);
+    return { error: 'Failed to fetch match history' };
+  }
+};
+
+// Function to fetch champion performance stats by puuid
+export const getChampionPerformance = async (puuid) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/champion-performance/${puuid}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching champion performance:', error);
+    return { error: 'Failed to fetch champion performance data' };
+  }
+};
+
+export const getChampionMastery = async (puuid) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/champion-mastery/${puuid}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching champion mastery:', error);
+    return { error: 'Failed to fetch champion mastery data' };
+  }
+};

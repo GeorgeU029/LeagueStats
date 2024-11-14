@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TextField, Button, Box, CircularProgress, Typography, Card } from '@mui/material';
 import { getAccountData } from '../services/api';
 
 function SummonerForm({ onAccountDataFetched }) {
@@ -27,30 +28,47 @@ function SummonerForm({ onAccountDataFetched }) {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '20px' }}>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Enter Game Name"
+    <Card sx={{ bgcolor: '#2d3748', p: 4, borderRadius: 3, boxShadow: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+        <TextField
+          label="Game Name"
+          variant="outlined"
           value={gameName}
           onChange={(e) => setGameName(e.target.value)}
           required
-          style={{ marginRight: '10px', padding: '5px' }}
+          fullWidth
+          InputLabelProps={{ style: { color: '#f0f0f0' } }}
+          InputProps={{
+            style: { color: '#f0f0f0', backgroundColor: '#3b4252', borderRadius: 1 },
+          }}
         />
-        <input
-          type="text"
-          placeholder="Enter Tag Line"
+        <TextField
+          label="Tag Line"
+          variant="outlined"
           value={tagLine}
           onChange={(e) => setTagLine(e.target.value)}
           required
-          style={{ marginRight: '10px', padding: '5px' }}
+          fullWidth
+          InputLabelProps={{ style: { color: '#f0f0f0' } }}
+          InputProps={{
+            style: { color: '#f0f0f0', backgroundColor: '#3b4252', borderRadius: 1 },
+          }}
         />
-        <button type="submit" disabled={loading} style={{ padding: '5px 10px' }}>
-          {loading ? 'Loading...' : 'Get Account Data'}
-        </button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={loading}
+          sx={{ bgcolor: '#4a90e2', color: '#fff', minWidth: '150px' }}
+        >
+          {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
+        </Button>
+      </Box>
+      {error && (
+        <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+    </Card>
   );
 }
 

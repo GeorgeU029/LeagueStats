@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { getAccountData, getSummonerData, getMatchHistory, getMatchData, getVersion } from './services/api';
+import { Container, Box, Typography, Card } from '@mui/material';
+import { getAccountData, getSummonerData, getMatchHistoryWithWinRate, getVersion } from './services/api';
 import SummonerForm from './components/SummonerForm';
 import SummonerProfile from './components/SummonerProfile';
 import MatchList from './components/MatchList';
+import LoadMoreMatches from './components/LoadMoreMatches'; // Import LoadMoreMatches
+import ChampionPerformance from './components/ChampionPerformance';
+import ChampionMastery from './components/ChampionMastery';
+import axios from 'axios';
 
 function App() {
   const [summoner, setSummoner] = useState(null);
   const [matches, setMatches] = useState([]);
   const [version, setVersion] = useState('');
+  const [championMapping, setChampionMapping] = useState({});
+  const [wins, setWins] = useState(0);
+  const [losses, setLosses] = useState(0);
+  const [winRate, setWinRate] = useState(0);
+  const [offset, setOffset] = useState(10); // Initialize offset for additional matches
+
+  const limit = 10;
 
   useEffect(() => {
     const fetchVersion = async () => {
@@ -19,43 +31,110 @@ function App() {
     fetchVersion();
   }, []);
 
+  useEffect(() => {
+    const fetchChampionMapping = async () => {
+      if (version) {
+        try {
+          const response = await axios.get(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`);
+          const champions = response.data.data;
+          const mapping = {};
+          Object.values(champions).forEach(champ => {
+            mapping[champ.key] = champ.id;
+          });
+          setChampionMapping(mapping);
+        } catch (error) {
+          console.error("Error fetching champion mapping:", error);
+        }
+      }
+    };
+    fetchChampionMapping();
+  }, [version]);
+
   const handleAccountDataFetched = async (data) => {
     const { puuid, gameName, tagLine } = data;
-
     const summonerData = await getSummonerData(puuid);
     setSummoner({ ...data, ...summonerData });
 
-    const matchIds = await getMatchHistory(puuid);
-    if (matchIds.length === 0) {
-      setMatches([]);
-      return;
+    const matchHistoryData = await getMatchHistoryWithWinRate(puuid, limit, 0);
+    if (!matchHistoryData.error) {
+      setMatches(matchHistoryData.matchDetails);
+      setWins(matchHistoryData.wins);
+      setLosses(matchHistoryData.losses);
+      setWinRate(matchHistoryData.winRate);
+      setOffset(limit); // Set offset to 10 after initial load
     }
-
-    const limitedMatchIds = matchIds.slice(0, 20);
-    const matchDataArray = await Promise.all(
-      limitedMatchIds.map(async (matchId) => {
-        const matchData = await getMatchData(matchId, puuid);
-        return { ...matchData, version };
-      })
-    );
-
-    setMatches(matchDataArray);
   };
 
   return (
-    <div className="App" style={{ textAlign: 'center', fontFamily: 'Poppins, sans-serif', color: '#f0f0f0', backgroundColor: 'rgb(26, 26, 46)', minHeight: '100vh' }}>
-      <header style={{ backgroundColor: 'rgb(26, 26, 46)', padding: '20px', color: 'white' }}>
-        <h1>Riot Games Data Viewer</h1>
-      </header>
-      <main style={{ marginTop: '20px' }}>
-        <SummonerForm onAccountDataFetched={handleAccountDataFetched} />
-        <SummonerProfile summoner={summoner} />
-        <MatchList matches={matches} />
-      </main>
-      <footer style={{ marginTop: '50px', padding: '20px', backgroundColor: '#0f3460', color: '#ffffff' }}>
-        <p>&copy; 2024 George Ulloa's Riot API App</p>
-      </footer>
-    </div>
+    <Box sx={{ bgcolor: '#1a1c23', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Container
+        maxWidth="md"
+        sx={{
+          color: '#f0f0f0',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          py: 1,
+          gap: 1,
+        }}
+      >
+        <Box sx={{ textAlign: 'center', mb: 2 }}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 'bold',
+              color: '#f0f0f0',
+              bgcolor: '#1f2937',
+              p: 1,
+              borderRadius: 2,
+              boxShadow: 3,
+            }}
+          >
+            My League Stats
+          </Typography>
+        </Box>
+
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <Card sx={{ p: 2, bgcolor: '#2d3748', color: '#f0f0f0', boxShadow: 3, borderRadius: 3 }}>
+            <SummonerForm onAccountDataFetched={handleAccountDataFetched} />
+          </Card>
+        </Box>
+
+        {summoner && (
+          <Box sx={{ width: '100%', mb: 2 }}>
+            <SummonerProfile summoner={summoner} wins={wins} losses={losses} winRate={winRate} />
+          </Box>
+        )}
+
+        {summoner && (
+          <Box sx={{ display: 'flex', gap: 1, width: '100%', alignItems: 'flex-start' }}>
+            <Box sx={{ flex: '1 1 30%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <ChampionMastery puuid={summoner.puuid} version={version} championMapping={championMapping} />
+              <ChampionPerformance puuid={summoner.puuid} />
+            </Box>
+            <Box sx={{ flex: '1 1 70%', minWidth: 0 }}>
+              <Card sx={{ p: 0.5, bgcolor: '#1f2937', color: '#f0f0f0', boxShadow: 3, borderRadius: 3 }}>
+                <MatchList matches={matches} />
+                <LoadMoreMatches
+                  puuid={summoner.puuid}
+                  limit={limit}
+                  offset={offset} // Pass offset as prop
+                  setOffset={setOffset} // Set offset after loading more
+                  matches={matches}
+                  setMatches={setMatches}
+                  setWins={setWins}
+                  setLosses={setLosses}
+                  setWinRate={setWinRate}
+                />
+              </Card>
+            </Box>
+          </Box>
+        )}
+      </Container>
+    </Box>
   );
 }
 

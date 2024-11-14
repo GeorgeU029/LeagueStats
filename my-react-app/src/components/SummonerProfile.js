@@ -1,58 +1,66 @@
 import React from 'react';
+import { Card, Box, Typography, Avatar } from '@mui/material';
+import WinRateChart from './WinRateChart';
+import challengerIcon from '../rankImages/Season_2023_-_Challenger.webp'; // Corrected path
+import grandMasterIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Grandmaster.webp';
+import mastersIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Master.webp';
+import diamondIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Diamond.webp';
+import platinumIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Platinum.webp';
+import emeraldIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Emerald.webp';
+import goldIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Gold.webp';
+import silverIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Silver.webp'
+import bronzeIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Bronze.webp';
+import ironIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Iron.webp';
+import unrankedIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Unranked.webp';
+// Define a mapping of rank tiers to their local image paths
+const rankImages = {
+  challenger: challengerIcon,
+  grandmaster: grandMasterIcon,
+  master:mastersIcon,
+  diamond:diamondIcon,
+  platinum:platinumIcon,
+  emerald:emeraldIcon,
+  gold:goldIcon,
+  silver:silverIcon,
+  bronze:bronzeIcon,
+  iron:ironIcon,
+  unranked:unrankedIcon,
+};
 
-function SummonerProfile({ summoner }) {
+function SummonerProfile({ summoner, wins, losses, winRate }) {
   if (!summoner) return null;
 
   const rankInfo = summoner.rank ? `${summoner.rank.tier} ${summoner.rank.rank}` : 'Unranked';
   const summonerIconUrl = `https://ddragon.leagueoflegends.com/cdn/14.21.1/img/profileicon/${summoner.profileIconId}.png`;
-  const rankIconUrl = summoner.rank ? `https://opgg-static.akamaized.net/images/medals/${summoner.rank.tier.toLowerCase()}.png` : null;
+  
+  // Use the local image based on the rank tier, or null if unranked
+  const rankIconUrl = summoner.rank ? rankImages[summoner.rank.tier.toLowerCase()] : null;
 
   return (
-    <div
-      id="summoner-info"
-      className="card"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px',
-        margin:'10px',
-        gap: '20px',
-        flexDirection: 'row',
-        backgroundColor: '#33335c',
-        color: '#f0f0f0',
-        borderRadius: '10px',
-        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
-      }}
-    >
-      {/* Summoner Profile Icon */}
-      <img
-        src={summonerIconUrl}
-        alt={`${summoner.gameName}'s Profile Icon`}
-        style={{ width: '80px', height: '80px', borderRadius: '50%' }}
-      />
+    <Card sx={{ p: 3, bgcolor: '#2d3748', color: '#f0f0f0', display: 'flex', alignItems: 'center', gap: 3, boxShadow: 3, borderRadius: 2 }}>
+      <Box display="flex" alignItems="center" gap={3}>
+        <Avatar src={summonerIconUrl} alt={`${summoner.gameName}'s Profile Icon`} sx={{ width: 80, height: 80 }} />
 
-      {/* Summoner Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-        <div>
-          <strong>Name:</strong> {summoner.gameName}#{summoner.tagLine}
-        </div>
-        <div>
-          <strong>Level:</strong> {summoner.summonerLevel}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <strong>Rank:</strong> {rankInfo}
-          {/* Rank Icon */}
-          {rankIconUrl && (
-            <img
-              src={rankIconUrl}
-              alt={`${rankInfo} Icon`}
-              style={{ width: '40px', height: '40px' }}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+        <Box>
+          <Typography variant="h6" component="div">
+            {summoner.gameName}#{summoner.tagLine}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Level:</strong> {summoner.summonerLevel}
+          </Typography>
+          <Box display="flex" alignItems="center" gap={1} mt={1}>
+            <Typography variant="body1"><strong>Rank:</strong> {rankInfo}</Typography>
+            {rankIconUrl && (
+              <Avatar src={rankIconUrl} alt={`${rankInfo} Icon`} sx={{ width: 40, height: 40 }} />
+            )}
+          </Box>
+        </Box>
+      </Box>
+
+      <Box display="flex" alignItems="center" justifyContent="center" ml="auto">
+        <WinRateChart wins={wins} losses={losses} winRate={winRate} />
+      </Box>
+    </Card>
   );
 }
 
