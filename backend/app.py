@@ -15,8 +15,6 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 API_KEY = os.getenv('RIOT_API_KEY')
-PORT = int(os.getenv('PORT', 3000))
-
 custom_headers = {
     "User-Agent": "Mozilla/5.0",
     "X-Riot-Token": API_KEY
@@ -77,6 +75,7 @@ def get_match_history(puuid):
         return jsonify(response.json())
     except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
+
 def fetch_match_data(match_id, puuid):
     match_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/{match_id}"
     retries = 3
@@ -91,26 +90,18 @@ def fetch_match_data(match_id, puuid):
             )
 
             if participant:
-                # Retrieve summoner spells using summoner1Id and summoner2Id
+                # Retrieve summoner spells
                 summoner_spells = [
-                    participant.get('summoner1Id'),  # Summoner spell 1 ID
-                    participant.get('summoner2Id')   # Summoner spell 2 ID
+                    participant.get('summoner1Id'),
+                    participant.get('summoner2Id')
                 ]
-                print("Summoner Spells:", summoner_spells)  # Log summoner spells for debugging
 
                 # Extract rune data for primary and secondary rune styles
                 runes_data = participant.get('perks', {}).get('styles', [])
-                print("Runes Data:", runes_data)  # Debugging the runes data
-
-                # Access the style ID directly for primary and sub-style
                 primary_rune_style = runes_data[0]['selections'][0]['perk'] if len(runes_data) > 0 and 'selections' in runes_data[0] else None
                 sub_rune_style = runes_data[1]['style'] if len(runes_data) > 1 else None
 
-                # Print extracted primary and sub styles for verification
-                print("Primary Rune Style:", primary_rune_style)
-                print("Sub Rune Style:", sub_rune_style)
-
-                # Create a `runes` dictionary with primary and sub styles based on the style IDs
+                # Create a `runes` dictionary with primary and sub styles
                 runes = {
                     "primaryStyle": primary_rune_style,
                     "subStyle": sub_rune_style
@@ -151,9 +142,6 @@ def fetch_match_data(match_id, puuid):
             else:
                 return None
 
-
-
-            
 @app.route('/api/matches/winrate/<string:puuid>', methods=['GET'])
 def get_match_history_with_win_rate(puuid):
     limit = int(request.args.get('limit', 10))
@@ -178,9 +166,7 @@ def get_match_history_with_win_rate(puuid):
                     if match_data["win"]:
                         wins += 1
 
-        # Sort match details by 'gameCreation' timestamp in descending order
         match_details.sort(key=lambda x: x["gameCreation"], reverse=True)
-
         win_rate = (wins / total_matches) * 100 if total_matches > 0 else 0
 
         return jsonify({
@@ -201,9 +187,7 @@ def get_champion_mastery(puuid):
         response.raise_for_status()
         mastery_data = response.json()
 
-        # Limit to top 5 champions
-        top_mastery = mastery_data[:5]
-
+        top_mastery = mastery_data[:3]
         return jsonify({"topMastery": top_mastery})
     except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
@@ -219,7 +203,6 @@ def get_champion_performance(puuid):
         match_ids = response.json()
 
         champion_stats = {}
-
         for match_id in match_ids:
             match_data = fetch_match_data(match_id, puuid)
             if match_data:
@@ -261,4 +244,5 @@ def get_champion_performance(puuid):
         return jsonify({"error": str(err)}), 500
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
