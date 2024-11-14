@@ -1,30 +1,33 @@
 import React from 'react';
 import { Card, Box, Typography, Avatar } from '@mui/material';
 import WinRateChart from './WinRateChart';
-import challengerIcon from '../rankImages/Season_2023_-_Challenger.webp'; // Corrected path
-import grandMasterIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Grandmaster.webp';
-import mastersIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Master.webp';
-import diamondIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Diamond.webp';
-import platinumIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Platinum.webp';
-import emeraldIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Emerald.webp';
-import goldIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Gold.webp';
-import silverIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Silver.webp'
-import bronzeIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Bronze.webp';
-import ironIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Iron.webp';
-import unrankedIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/rankImages/Season_2023_-_Unranked.webp';
+
+// Import all rank images with relative paths from the src directory
+import challengerIcon from './rankImages/Season_2023_-_Challenger.webp';
+import grandMasterIcon from './rankImages/Season_2023_-_Grandmaster.webp';
+import mastersIcon from './rankImages/Season_2023_-_Master.webp';
+import diamondIcon from './rankImages/Season_2023_-_Diamond.webp';
+import platinumIcon from './rankImages/Season_2023_-_Platinum.webp';
+import emeraldIcon from './rankImages/Season_2023_-_Emerald.webp';
+import goldIcon from './rankImages/Season_2023_-_Gold.webp';
+import silverIcon from './rankImages/Season_2023_-_Silver.webp';
+import bronzeIcon from './rankImages/Season_2023_-_Bronze.webp';
+import ironIcon from './rankImages/Season_2023_-_Iron.webp';
+import unrankedIcon from './rankImages/Season_2023_-_Unranked.webp';
+
 // Define a mapping of rank tiers to their local image paths
 const rankImages = {
   challenger: challengerIcon,
   grandmaster: grandMasterIcon,
-  master:mastersIcon,
-  diamond:diamondIcon,
-  platinum:platinumIcon,
-  emerald:emeraldIcon,
-  gold:goldIcon,
-  silver:silverIcon,
-  bronze:bronzeIcon,
-  iron:ironIcon,
-  unranked:unrankedIcon,
+  master: mastersIcon,
+  diamond: diamondIcon,
+  platinum: platinumIcon,
+  emerald: emeraldIcon,
+  gold: goldIcon,
+  silver: silverIcon,
+  bronze: bronzeIcon,
+  iron: ironIcon,
+  unranked: unrankedIcon,
 };
 
 function SummonerProfile({ summoner, wins, losses, winRate }) {
