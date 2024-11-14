@@ -32,7 +32,7 @@ const WinRateChart = ({ wins, losses, winRate }) => {
   useEffect(() => {
     const chartInstance = chartRef.current?.chartInstance;
     return () => {
-      // Clean up the chart instance on unmount to avoid errors
+     
       if (chartInstance) {
         chartInstance.destroy();
       }

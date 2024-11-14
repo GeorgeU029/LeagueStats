@@ -4,7 +4,7 @@ import { getAccountData, getSummonerData, getMatchHistoryWithWinRate, getVersion
 import SummonerForm from './components/SummonerForm';
 import SummonerProfile from './components/SummonerProfile';
 import MatchList from './components/MatchList';
-import LoadMoreMatches from './components/LoadMoreMatches'; // Import LoadMoreMatches
+import LoadMoreMatches from './components/LoadMoreMatches'; 
 import ChampionPerformance from './components/ChampionPerformance';
 import ChampionMastery from './components/ChampionMastery';
 import axios from 'axios';
@@ -17,7 +17,7 @@ function App() {
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
   const [winRate, setWinRate] = useState(0);
-  const [offset, setOffset] = useState(10); // Initialize offset for additional matches
+  const [offset, setOffset] = useState(10); 
 
   const limit = 10;
 
@@ -61,7 +61,7 @@ function App() {
       setWins(matchHistoryData.wins);
       setLosses(matchHistoryData.losses);
       setWinRate(matchHistoryData.winRate);
-      setOffset(limit); // Set offset to 10 after initial load
+      setOffset(limit); 
     }
   };
 

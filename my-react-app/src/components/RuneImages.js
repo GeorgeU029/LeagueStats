@@ -64,7 +64,7 @@ function RuneImages({ runes }) {
 
   return (
     <Box display="flex" gap={0.5}>
-      {/* Display primary and sub rune icons based on ID lookup */}
+      {}
       <Avatar
         src={runeImages[runes.primaryStyle] || summonAeryRune}  // Default fallback to summonAeryRune
         alt="Primary Rune Style"

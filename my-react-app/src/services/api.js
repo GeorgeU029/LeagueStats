@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:5000'; // Ensure this matches the Flask server's URL
+const API_URL = 'https://league-stats-backend.onrender.com';
 
 export const getVersion = async () => {
   try {
