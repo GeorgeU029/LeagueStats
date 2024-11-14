@@ -194,7 +194,7 @@ def get_champion_mastery(puuid):
 
 @app.route('/api/champion-performance/<string:puuid>', methods=['GET'])
 def get_champion_performance(puuid):
-    limit = int(request.args.get('limit', 20))
+    limit = int(request.args.get('limit', 100))
     base_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count={limit}"
 
     try:
@@ -214,8 +214,6 @@ def get_champion_performance(puuid):
                         'kills': 0,
                         'deaths': 0,
                         'assists': 0,
-                        'cs': 0,
-                        'gold': 0
                     }
 
                 stats = champion_stats[champion_name]
@@ -224,8 +222,6 @@ def get_champion_performance(puuid):
                 stats['kills'] += match_data['kills']
                 stats['deaths'] += match_data['deaths']
                 stats['assists'] += match_data['assists']
-                stats['cs'] += match_data.get('totalMinionsKilled', 0)
-                stats['gold'] += match_data.get('goldEarned', 0)
 
         champion_performance = [
             {
@@ -233,8 +229,6 @@ def get_champion_performance(puuid):
                 'games': stats['games'],
                 'win_rate': round((stats['wins'] / stats['games']) * 100, 2) if stats['games'] > 0 else 0,
                 'average_kda': f"{stats['kills'] / stats['games']:.1f}/{stats['deaths'] / stats['games']:.1f}/{stats['assists'] / stats['games']:.1f}" if stats['games'] > 0 else "N/A",
-                'average_cs_per_min': round((stats['cs'] / stats['games']) / (match_data['gameDuration'] / 60), 2) if match_data.get('gameDuration') else 0,
-                'average_gold': round(stats['gold'] / stats['games'], 2) if stats['games'] > 0 else 0
             }
             for champion, stats in champion_stats.items()
         ]
