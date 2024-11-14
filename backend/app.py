@@ -192,6 +192,7 @@ def get_champion_mastery(puuid):
     except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
 
+@app.route('/api/champion-performance/<string:puuid>', methods=['GET'])
 def get_champion_performance(puuid):
     limit = 100  # Last 100 games
     base_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count={limit}"
@@ -201,6 +202,7 @@ def get_champion_performance(puuid):
         response.raise_for_status()
         match_ids = response.json()
 
+        # Initialize champion stats dictionary
         champion_stats = {}
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(fetch_match_data, match_id, puuid) for match_id in match_ids]
@@ -218,6 +220,7 @@ def get_champion_performance(puuid):
                     stats['assists'] += match_data['assists']
                     stats['cs'] += match_data['totalMinionsKilled'] / (match_data['gameDuration'] / 60)
 
+        # Sort and select top 5 champions
         champion_performance = sorted(
             [
                 {
@@ -233,9 +236,13 @@ def get_champion_performance(puuid):
             reverse=True
         )[:5]  # Limit to top 5 champions by games played
 
+        # Debugging: Print champion performance data
+        print("Champion Performance Data:", champion_performance)
+
         return jsonify({"championPerformance": champion_performance})
     except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
