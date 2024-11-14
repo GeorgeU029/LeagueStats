@@ -192,9 +192,8 @@ def get_champion_mastery(puuid):
     except requests.exceptions.RequestException as err:
         return jsonify({"error": str(err)}), 500
 
-@app.route('/api/champion-performance/<string:puuid>', methods=['GET'])
 def get_champion_performance(puuid):
-    limit = int(request.args.get('limit', 100))
+    limit = 100  # Last 100 games
     base_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count={limit}"
 
     try:
@@ -203,35 +202,36 @@ def get_champion_performance(puuid):
         match_ids = response.json()
 
         champion_stats = {}
-        for match_id in match_ids:
-            match_data = fetch_match_data(match_id, puuid)
-            if match_data:
-                champion_name = match_data['champion']
-                if champion_name not in champion_stats:
-                    champion_stats[champion_name] = {
-                        'games': 0,
-                        'wins': 0,
-                        'kills': 0,
-                        'deaths': 0,
-                        'assists': 0,
-                    }
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(fetch_match_data, match_id, puuid) for match_id in match_ids]
+            for future in as_completed(futures):
+                match_data = future.result()
+                if match_data:
+                    champ = match_data["champion"]
+                    stats = champion_stats.setdefault(champ, {
+                        'games': 0, 'wins': 0, 'kills': 0, 'deaths': 0, 'assists': 0, 'cs': 0
+                    })
+                    stats['games'] += 1
+                    stats['wins'] += 1 if match_data['win'] else 0
+                    stats['kills'] += match_data['kills']
+                    stats['deaths'] += match_data['deaths']
+                    stats['assists'] += match_data['assists']
+                    stats['cs'] += match_data['totalMinionsKilled'] / (match_data['gameDuration'] / 60)
 
-                stats = champion_stats[champion_name]
-                stats['games'] += 1
-                stats['wins'] += 1 if match_data['win'] else 0
-                stats['kills'] += match_data['kills']
-                stats['deaths'] += match_data['deaths']
-                stats['assists'] += match_data['assists']
-
-        champion_performance = [
-            {
-                'champion': champion,
-                'games': stats['games'],
-                'win_rate': round((stats['wins'] / stats['games']) * 100, 2) if stats['games'] > 0 else 0,
-                'average_kda': f"{stats['kills'] / stats['games']:.1f}/{stats['deaths'] / stats['games']:.1f}/{stats['assists'] / stats['games']:.1f}" if stats['games'] > 0 else "N/A",
-            }
-            for champion, stats in champion_stats.items()
-        ]
+        champion_performance = sorted(
+            [
+                {
+                    'champion': champion,
+                    'games': stats['games'],
+                    'win_rate': round((stats['wins'] / stats['games']) * 100, 2),
+                    'average_kda': f"{stats['kills'] / stats['games']:.1f}/{stats['deaths'] / stats['games']:.1f}/{stats['assists'] / stats['games']:.1f}",
+                    'average_cs_per_min': round(stats['cs'] / stats['games'], 2),
+                }
+                for champion, stats in champion_stats.items()
+            ],
+            key=lambda x: x['games'],
+            reverse=True
+        )[:5]  # Limit to top 5 champions by games played
 
         return jsonify({"championPerformance": champion_performance})
     except requests.exceptions.RequestException as err:
