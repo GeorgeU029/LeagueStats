@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { Doughnut } from 'react-chartjs-2';
-import Chart from 'chart.js/auto';
+
 
 const WinRateChart = ({ wins, losses, winRate }) => {
   const chartRef = useRef(null);

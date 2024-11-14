@@ -16,7 +16,6 @@ function Match({ match }) {
     kills,
     deaths,
     assists,
-    gameDuration,
     summonerSpells = [],
     runes = [],
     participants = [],

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Box, Typography, Card } from '@mui/material';
-import { getAccountData, getSummonerData, getMatchHistoryWithWinRate, getVersion } from './services/api';
+import { getSummonerData, getMatchHistoryWithWinRate, getVersion } from './services/api';
 import SummonerForm from './components/SummonerForm';
 import SummonerProfile from './components/SummonerProfile';
 import MatchList from './components/MatchList';
-import LoadMoreMatches from './components/LoadMoreMatches'; 
+import LoadMoreMatches from './components/LoadMoreMatches';
 import ChampionPerformance from './components/ChampionPerformance';
 import ChampionMastery from './components/ChampionMastery';
 import axios from 'axios';
@@ -17,7 +17,7 @@ function App() {
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
   const [winRate, setWinRate] = useState(0);
-  const [offset, setOffset] = useState(10); 
+  const [offset, setOffset] = useState(10);
 
   const limit = 10;
 
@@ -51,7 +51,7 @@ function App() {
   }, [version]);
 
   const handleAccountDataFetched = async (data) => {
-    const { puuid, gameName, tagLine } = data;
+    const { puuid } = data;
     const summonerData = await getSummonerData(puuid);
     setSummoner({ ...data, ...summonerData });
 
@@ -61,7 +61,7 @@ function App() {
       setWins(matchHistoryData.wins);
       setLosses(matchHistoryData.losses);
       setWinRate(matchHistoryData.winRate);
-      setOffset(limit); 
+      setOffset(limit);
     }
   };
 
@@ -121,8 +121,8 @@ function App() {
                 <LoadMoreMatches
                   puuid={summoner.puuid}
                   limit={limit}
-                  offset={offset} // Pass offset as prop
-                  setOffset={setOffset} // Set offset after loading more
+                  offset={offset}
+                  setOffset={setOffset}
                   matches={matches}
                   setMatches={setMatches}
                   setWins={setWins}
