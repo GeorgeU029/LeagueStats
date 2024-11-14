@@ -2,27 +2,27 @@ import React, { useEffect } from 'react';
 import { Avatar, Box } from '@mui/material';
 
 // Import all rune images and style icons
-import aftershockRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Aftershock_rune.webp';
-import arcaneCometRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Arcane_Comet_rune.webp';
-import conquerorRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Conqueror_rune.webp';
-import darkHarvestRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Dark_Harvest_rune.webp';
-import electrocuteRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Electrocute_rune.webp';
-import firstStrikeRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/First_Strike_rune.webp';
-import fleetFootworkRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Fleet_Footwork_rune.webp';
-import glacialAugmentRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Glacial_Augment_rune.webp';
-import graspOfTheUndyingRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Grasp_of_the_Undying_rune.webp';
-import guardianRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Guardian_rune.webp';
-import hailOfBladesRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Hail_of_Blades_rune.webp';
-import lethalTempoRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Lethal_Tempo_rune.webp';
-import phaseRushRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Phase_Rush_rune.webp';
-import pressTheAttackRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Press_the_Attack_rune.webp';
-import summonAeryRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Summon_Aery_rune.webp';
-import unsealedSpellbookRune from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Unsealed_Spellbook_rune.webp';
-import precisionIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Precision_icon.webp';
-import resolveIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Resolve_icon.webp';
-import sorceryIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Sorcery_icon.webp';
-import dominationIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Domination_icon.webp';
-import inspirationIcon from '/Users/georgeulloa/Desktop/riot-app/my-react-app/src/runesImages/Inspiration_icon.webp';
+import aftershockRune from '../assets/runesImages/Aftershock_rune.webp';
+import arcaneCometRune from '../assets/runesImages/Arcane_Comet_rune.webp';
+import conquerorRune from '../assets/runesImages/Conqueror_rune.webp';
+import darkHarvestRune from '../assets/runesImages/Dark_Harvest_rune.webp';
+import electrocuteRune from '../assets/runesImages/Electrocute_rune.webp';
+import firstStrikeRune from '../assets/runesImages/First_Strike_rune.webp';
+import fleetFootworkRune from '../assets/runesImages/Fleet_Footwork_rune.webp';
+import glacialAugmentRune from '../assets/runesImages/Glacial_Augment_rune.webp';
+import graspOfTheUndyingRune from '../assets/runesImages/Grasp_of_the_Undying_rune.webp';
+import guardianRune from '../assets/runesImages/Guardian_rune.webp';
+import hailOfBladesRune from '../assets/runesImages/Hail_of_Blades_rune.webp';
+import lethalTempoRune from '../assets/runesImages/Lethal_Tempo_rune.webp';
+import phaseRushRune from '../assets/runesImages/Phase_Rush_rune.webp';
+import pressTheAttackRune from '../assets/runesImages/Press_the_Attack_rune.webp';
+import summonAeryRune from '../assets/runesImages/Summon_Aery_rune.webp';
+import unsealedSpellbookRune from '../assets/runesImages/Unsealed_Spellbook_rune.webp';
+import precisionIcon from '../assets/runesImages/Precision_icon.webp';
+import resolveIcon from '../assets/runesImages/Resolve_icon.webp';
+import sorceryIcon from '../assets/runesImages/Sorcery_icon.webp';
+import dominationIcon from '../assets/runesImages/Domination_icon.webp';
+import inspirationIcon from '../assets/runesImages/Inspiration_icon.webp';
 
 // Combine all rune and style icons into one mapping
 const runeImages = {
@@ -64,7 +64,6 @@ function RuneImages({ runes }) {
 
   return (
     <Box display="flex" gap={0.5}>
-      {}
       <Avatar
         src={runeImages[runes.primaryStyle] || summonAeryRune}  // Default fallback to summonAeryRune
         alt="Primary Rune Style"
