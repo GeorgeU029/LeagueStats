@@ -3,17 +3,17 @@ import { Card, Box, Typography, Avatar } from '@mui/material';
 import WinRateChart from './WinRateChart';
 
 // Update paths to be within src directory
-import challengerIcon from './assets/rankImages/Season_2023_-_Challenger.webp';
-import grandMasterIcon from './assets/rankImages/Season_2023_-_Grandmaster.webp';
-import mastersIcon from './assets/rankImages/Season_2023_-_Master.webp';
-import diamondIcon from './assets/rankImages/Season_2023_-_Diamond.webp';
-import platinumIcon from './assets/rankImages/Season_2023_-_Platinum.webp';
-import emeraldIcon from './assets/rankImages/Season_2023_-_Emerald.webp';
-import goldIcon from './assets/rankImages/Season_2023_-_Gold.webp';
-import silverIcon from './assets/rankImages/Season_2023_-_Silver.webp';
-import bronzeIcon from './assets/rankImages/Season_2023_-_Bronze.webp';
-import ironIcon from './assets/rankImages/Season_2023_-_Iron.webp';
-import unrankedIcon from './assets/rankImages/Season_2023_-_Unranked.webp';
+import challengerIcon from '../assets/rankImages/Season_2023_-_Challenger.webp';
+import grandMasterIcon from '../assets/rankImages/Season_2023_-_Grandmaster.webp';
+import mastersIcon from '../assets/rankImages/Season_2023_-_Master.webp';
+import diamondIcon from '../assets/rankImages/Season_2023_-_Diamond.webp';
+import platinumIcon from '../assets/rankImages/Season_2023_-_Platinum.webp';
+import emeraldIcon from '../assets/rankImages/Season_2023_-_Emerald.webp';
+import goldIcon from '../assets/rankImages/Season_2023_-_Gold.webp';
+import silverIcon from '../assets/rankImages/Season_2023_-_Silver.webp';
+import bronzeIcon from '../assets/rankImages/Season_2023_-_Bronze.webp';
+import ironIcon from '../assets/rankImages/Season_2023_-_Iron.webp';
+import unrankedIcon from '../assets/rankImages/Season_2023_-_Unranked.webp';
 
 const rankImages = {
   challenger: challengerIcon,
